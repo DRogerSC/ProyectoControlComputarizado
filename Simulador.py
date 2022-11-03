@@ -31,7 +31,7 @@ class simulador:
     outputMemory = []  # b
     # perturbation
 
-    def printEquation():
+    def printEquation(self):
         print("Ecuacion de diferencias:\n\n")
         print("")
 
