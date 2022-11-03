@@ -11,7 +11,6 @@
 ----------------------------------------------------------
 '''
 
-
 import numpy as np
 
 class simulador:
@@ -20,11 +19,12 @@ class simulador:
     listcoefb = [0, 1]
     coefd = 0
     coefPert = 0
-    stepTime = 0
+    UnitLadderNo = 0
     maxSteps = 1000
-    stepNum = 0
+    stepSize = 0
     maxOutDelay = 0
     maxInpDelay = 0
+    inpType = 0
 
     inputMemory = []    #a
     outputMemory = []   #b
@@ -54,21 +54,29 @@ class simulador:
      #Funcion que a partir de la lista de coeficientes a, calcula el valor maximo que se tiene que guardar del input para calcular el siguiente valor
     def calculateMaxInpDelay(self):
         '''
-        @name: 
+        @name: calculateMaxInpDelay
         @brief: 
         @param: 
         @return: --
         '''
         self.maxInpDelay = len(self.listcoefb) + self.coefd
-        for i in range(self.maxInpDelay):
-            self.outputMemory.append(0)
+        
+        for i in range(self.maxInpDelay):   #Ingresa a la memoria las primeras unidades necesarias para la entrada
+            if self.inpType == 1:           #Escalon unitario
+                self.outputMemory.append(1)
+            elif self.inpType == 2:         #Escalon definido
+                self.outputMemory.append(self.stepSize)
+            elif self.inpType == 3:         #Rampa
+                self.outputMemory.append(self.stepSize)
+            elif self.inpType == 4:         #Lectura de archivo 
+                pass #### Pendiente: Primera lectura de entrada
 
 
 
     def returnStepResult(self):
         '''
-        @name: 
-        @brief: 
+        @name: returnStepResult
+        @brief: Calcula la salida en el siguiente step
         @param:
         @return: --
         '''
@@ -80,9 +88,10 @@ class simulador:
             accum += self.outputMemory[i+self.coefd]*self.listcoefb[i+self.coefd]
 
         self.outputMemory.pop()
-        self.outputMemory.append()
+        self.outputMemory.append(accum)
         
         return accum
+
         
     
 
@@ -118,8 +127,9 @@ def printMenuEntrada():
 ## CODIGO PRINCIPAL
 ###################
 
-def main (argv, argc):
+def main():
 
+    print("First print")
 
 
     #Se lee un archivo con los atributos de la clase; ya declarados y se vuelve a declarar la clase con estos atributos
@@ -134,45 +144,55 @@ def main (argv, argc):
     print("Bienvenido al simulador: ¿Que quieres hacer?\n")
     choice = printMenu()
 
-    if choice == 1:
-        print("Declara tus coeficientes con el siguiente formato:\n ")
-        stringACoef = input("Ejemplo: 2.31 0.23 0 2 etc.\n")
-        sim.listcoefa = list(map(float, stringACoef))
+    while (choice != 0):
+
+        if choice == '1':
+            print("Declara tus coeficientes con el siguiente formato:\n ")
+            stringACoef = input("Ejemplo: 2.31 0.23 0 2 etc.\n")
+            sim.listcoefa = list(map(float, stringACoef))
 
 
-    elif choice == 2:
-        print("Declara tus coeficientes con el siguiente formato:\n ")
-        stringBCoef = input("Ejemplo: 2.31 0.23 0 2 etc. \n")
-        sim.listcoefb = list(map(float, stringBCoef))
-       
+        elif choice == '2':
+            print("Declara tus coeficientes con el siguiente formato:\n ")
+            stringBCoef = input("Ejemplo: 2.31 0.23 0 2 etc. \n")
+            sim.listcoefb = list(map(float, stringBCoef))
+        
 
-    elif  choice == 3:
-        print("Declara un delay entero (d):\n ")
-        stringDCoef = input("Ejemplo: 2 \n")
-        sim.coefd = list(map(int, stringDCoef))
-    
+        elif  choice == '3':
+            print("Declara un delay entero (d):\n ")
+            stringDCoef = input("Ejemplo: 2 \n")
+            sim.coefd = list(map(int, stringDCoef))
+        
 
-    elif choice == 4:
-        print("Declara una perturbacion constante (pert):\n ")
-        stringDCoef = input("Ejemplo: 2 \n")
-        sim.coefd = list(map(int, stringDCoef))
-
-
-    elif choice == 5:
-        print("Elige el tipo de señal de entrada:\n")
-        choiceInp = printMenuEntrada()
+        elif choice == '4':
+            print("Declara una perturbacion constante (pert):\n ")
+            stringDCoef = input("Ejemplo: 2 \n")
+            sim.coefd = list(map(int, stringDCoef))
 
 
+        elif choice == '5':
+            sim.printEquation()
+
+        elif choice == '6':
+            print("Elige el tipo de señal de entrada:\n")
+            choiceInp = printMenuEntrada()
+            sim.inpType = int(choiceInp)
 
 
+        elif choice == '7':
+            sim.calculateMaxInpDelay()
+            sim.calculateMaxOutDelay()
+            
+            while (1):
+                print(sim.returnStepResult())
 
-    elif choice == 6:
-        print("")
+        else:
+            print("Invalid command!")
 
+        print("What do you want to do?")
+        choice = printMenu()
 
-    elif choice == 7:
-
-    
+    return 1
         #Numero de parametros, step time
     
     #Segunda entrada: 
@@ -187,3 +207,4 @@ def main (argv, argc):
 
         #Numero de pasos a simular, opcion indefinida para simulacion a tiempo real
 
+main()
