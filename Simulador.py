@@ -18,6 +18,7 @@ class simulador:
 
     listcoefa = [1]
     listcoefb = [0, 1]
+    result = []
     coefd = 0
     coefPert = 0
     UnitLadderNo = 0
@@ -57,10 +58,11 @@ class simulador:
         @param: 
         @return: --
         '''
-        self.maxInpDelay = len(self.listcoefb) + self.coefd
+
+        self.maxInpDelay = len(self.listcoefb) + self.coefd[0]
 
         # Ingresa a la memoria las primeras unidades necesarias para la entrada
-        for i in range(self.maxInpDelay):
+        for i in range(int(self.maxInpDelay)):
             if self.inpType == 1:  # Escalon unitario
                 self.outputMemory.append(1)
             elif self.inpType == 2:  # Escalon definido
@@ -78,15 +80,13 @@ class simulador:
         @return: --
         '''
         accum = 0
-        for i in range(len(self.inputMemory)):
-            accum += self.inputMemory[i]*self.listcoefa[i]
+        for i in range(len(self.outputMemory)-1):
+            accum += self.outputMemory[i]*self.listcoefa[i]
 
-        for i in range(len(self.outputMemory)):
-            accum += self.outputMemory[i+self.coefd] * \
-                self.listcoefb[i+self.coefd]
-
+        for i in range(len(self.inputMemory)-int(self.coefd[0])):
+            accum += self.inputMemory[i+int(self.coefd[0])] * self.listcoefb[i]
         self.outputMemory.pop()
-        self.outputMemory.append(accum)
+        self.outputMemory.insert(1, accum)
 
         return accum
 
@@ -162,8 +162,8 @@ def main():
 
         elif choice == '4':
             print("Declara una perturbacion constante (pert):\n ")
-            stringDCoef = input("Ejemplo: 2 \n")
-            sim.coefd = [float(x) for x in stringDCoef.split(" ")]
+            stringDCoefPert = input("Ejemplo: 2 \n")
+            sim.coefPert = [float(x) for x in stringDCoefPert.split(" ")]
             #sim.coefd = list(map(int, stringDCoef))
 
         elif choice == '5':
