@@ -13,11 +13,11 @@
 
 import numpy as np
 import tkinter
-from matplotlib.figure import Figure
-from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg,
-                                               NavigationToolbar2Tk)
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+
 ventana = tkinter.Tk()
-ventana.geometry("1000x700")
+ventana.geometry("1200x700")
 
 
 class simulador:
@@ -97,131 +97,100 @@ class simulador:
         return accum
 
 
-def plot():
-
-    # the figure that will contain the plot
-    fig = Figure(figsize=(5, 5),
-                 dpi=100)
-
-    # list of squares
-    y = [i**2 for i in range(101)]
-
-    # adding the subplot
-    plot1 = fig.add_subplot(111)
-
-    # plotting the graph
-    plot1.plot(y)
-
-    # creating the Tkinter canvas
-    # containing the Matplotlib figure
-    canvas = FigureCanvasTkAgg(fig, master=ventana)
-    canvas.draw()
-
-    # placing the canvas on the Tkinter window
-    canvas.get_tk_widget().pack()
-
-    # creating the Matplotlib toolbar
-    toolbar = NavigationToolbar2Tk(canvas, ventana)
-    toolbar.update()
-
-    # placing the toolbar on the Tkinter window
-    canvas.get_tk_widget().pack()
+def graph():
+    house_prices = np.random.normal(200000, 25000, 5000)
+    plt.hist(house_prices, 50)
+    plt.show()
 
 
 def printVentana():
-
-    etiqueta = tkinter.Label(ventana, text="Hola Mundo")
-    # Para mandar parametros con boton:
-    #  def saludo(nombre):
-    #        print("hola "+ nombre)
-    # boton1 = tkinter.button(ventana, text="Presiona",command=lambda: saludo("string"))
-    # Para cajas de texto:
-    #cajaTexto = tkinter.Entry(ventana,font = "Helvetica 20")
-    # cajaTexto.pack()
-    # Para mandar caja de textos a una funcion con un boton:
-    # def textoDeLaCaja():
-    #   text20 = cajaTexto.get()
-    #   print(text20)
-    #
-    #boton1 = tkinter.button(ventana, text="Presiona",command=lambda: textoDeLaCaja)
-    # boton1.pack()
-    # Para ordenar de una mejor forma
-    #
     etiqueta = tkinter.Label(ventana, text="   Entradas:",
                              font="Helvetica 15").grid(row=0, column=0, columnspan=2)
     # Estas son las as
     etiquetaA1 = tkinter.Label(
         ventana, text="a1", font="Helvetica 15").grid(row=1, column=0)
-    cajaTextoEntradas = tkinter.Entry(
+    cajaTextoEntradasA1 = tkinter.Entry(
         ventana, font="Helvetica 15").grid(row=1, column=1)
     etiquetaA2 = tkinter.Label(
         ventana, text="a2", font="Helvetica 15").grid(row=2, column=0)
-    cajaTextoEntradas = tkinter.Entry(
+    cajaTextoEntradasA2 = tkinter.Entry(
         ventana, font="Helvetica 15").grid(row=2, column=1)
     etiquetaA3 = tkinter.Label(
         ventana, text="a3", font="Helvetica 15").grid(row=3, column=0)
-    cajaTextoEntradas = tkinter.Entry(
+    cajaTextoEntradasA3 = tkinter.Entry(
         ventana, font="Helvetica 15").grid(row=3, column=1)
     etiquetaA4 = tkinter.Label(
         ventana, text="a4", font="Helvetica 15").grid(row=4, column=0)
-    cajaTextoEntradas = tkinter.Entry(
+    cajaTextoEntradasA4 = tkinter.Entry(
         ventana, font="Helvetica 15").grid(row=4, column=1)
     # bs
     etiquetaB1 = tkinter.Label(
         ventana, text="b1", font="Helvetica 15").grid(row=5, column=0)
 
-    cajaTextoEntradas = tkinter.Entry(
+    cajaTextoEntradasB1 = tkinter.Entry(
         ventana, font="Helvetica 15").grid(row=5, column=1)
 
     etiquetaB2 = tkinter.Label(
         ventana, text="b2", font="Helvetica 15").grid(row=6, column=0)
 
-    cajaTextoEntradas = tkinter.Entry(
+    cajaTextoEntradasB2 = tkinter.Entry(
         ventana, font="Helvetica 15").grid(row=6, column=1)
 
     etiquetaB3 = tkinter.Label(
         ventana, text="b3", font="Helvetica 15").grid(row=7, column=0)
 
-    cajaTextoEntradas = tkinter.Entry(
+    cajaTextoEntradasB3 = tkinter.Entry(
         ventana, font="Helvetica 15").grid(row=7, column=1)
 
     etiquetaB4 = tkinter.Label(
         ventana, text="b4", font="Helvetica 15").grid(row=8, column=0)
 
-    cajaTextoEntradas = tkinter.Entry(
+    cajaTextoEntradasB4 = tkinter.Entry(
         ventana, font="Helvetica 15").grid(row=8, column=1)
 
     # ds
     etiquetaD = tkinter.Label(
         ventana, text="d", font="Helvetica 15").grid(row=9, column=0)
 
-    cajaTextoEntradas = tkinter.Entry(
+    cajaTextoEntradasD = tkinter.Entry(
         ventana, font="Helvetica 15").grid(row=9, column=1)
 
     boton1 = tkinter.Button(ventana, text="Ingresar",
-                            width=35, height=2, command=plot).grid(row=10, column=0, columnspan=2)
+                            width=35, height=2, command=graph).grid(row=10, column=0, columnspan=2)
 
-    # Plots grids 2 a 7
+    # Plots grids columns 2 a 7
+    etiquetaYK = tkinter.Label(ventana, text="y(k)", font="Helvetica 15").grid(
+        row=0, column=3, columnspan=5)
+    y = []
+    t = []
+    for x in list(range(0, 101)):
+        t.append(x/15.87)
+    for x in t:
+        y.append(x)
+    figure = plt.figure(figsize=(5, 4), dpi=100)
+    figure.add_subplot(111).plot(t, y)
+    chart = FigureCanvasTkAgg(figure, ventana)
+    chart.get_tk_widget().grid(row=2, column=3, columnspan=5, rowspan=4)
 
     # Perturbaciones
     etiquetaPert = tkinter.Label(
-        ventana, text="Perturbaciones", font="Helvetica 15").grid(row=0, column=7, columnspan=2)
+        ventana, text="Perturbaciones", font="Helvetica 15").grid(row=0, column=9, columnspan=2)
     etiquetaEscalon = tkinter.Label(
-        ventana, text="Esc", font="Helvetica 15").grid(row=1, column=7)
+        ventana, text="Esc", font="Helvetica 15").grid(row=1, column=9)
     cajaTextoEscalon = tkinter.Entry(
-        ventana, font="Helvetica 15").grid(row=1, column=8)
+        ventana, font="Helvetica 15").grid(row=1, column=10)
     etiquetaRandom = tkinter.Label(
-        ventana, text="Rand", font="Helvetica 15").grid(row=2, column=7)
+        ventana, text="Rand", font="Helvetica 15").grid(row=2, column=9)
     cajaTextoRandom = tkinter.Entry(
-        ventana, font="Helvetica 15").grid(row=2, column=8)
+        ventana, font="Helvetica 15").grid(row=2, column=10)
 
     # u(k)
     etiquetaU = tkinter.Label(
-        ventana, text="u(k)", font="Helvetica 15").grid(row=3, column=7, columnspan=2)
+        ventana, text="u(k)", font="Helvetica 10").grid(row=3, column=9, columnspan=2)
     etiquetaEscalon = tkinter.Label(
-        ventana, text="Esc", font="Helvetica 15").grid(row=4, column=7)
+        ventana, text="Esc", font="Helvetica 15").grid(row=4, column=9)
     cajaTextoEscalon = tkinter.Entry(
-        ventana, font="Helvetica 15").grid(row=4, column=8)
+        ventana, font="Helvetica 15").grid(row=4, column=10)
 
     ventana.mainloop()
 
