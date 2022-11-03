@@ -104,6 +104,22 @@ def graph():
 
 
 def printVentana():
+    # Para mandar parametros con boton:
+    #  def saludo(nombre):
+    #        print("hola "+ nombre)
+    # boton1 = tkinter.button(ventana, text="Presiona",command=lambda: saludo("string"))
+
+    # Para cajas de texto:
+    # cajaTexto = tkinter.Entry(ventana,font = "Helvetica 20")
+    # cajaTexto.pack()
+
+    # Para mandar caja de textos a una funcion con un boton:
+    #
+    # def textoDeLaCaja():
+    #   text20 = cajaTexto.get()
+    #   print(text20)
+    # boton1 = tkinter.button(ventana, text="Presiona",command=lambda: textoDeLaCaja)
+    # boton1.pack()
     etiqueta = tkinter.Label(ventana, text="   Entradas:",
                              font="Helvetica 15").grid(row=0, column=0, columnspan=2)
     # Estas son las as
@@ -161,16 +177,18 @@ def printVentana():
     # Plots grids columns 2 a 7
     etiquetaYK = tkinter.Label(ventana, text="y(k)", font="Helvetica 15").grid(
         row=0, column=3, columnspan=5)
+    # 'y' y 't' son los arreglos con los datos ahi cambiaria a las C's y M's
     y = []
     t = []
     for x in list(range(0, 101)):
         t.append(x/15.87)
     for x in t:
-        y.append(x)
+        y.append(x+1)
     figure = plt.figure(figsize=(5, 4), dpi=100)
     figure.add_subplot(111).plot(t, y)
+    # ventana es el objeto que contiene todo lo que se quiere desplegar y figure es la figura de la tabla.
     chart = FigureCanvasTkAgg(figure, ventana)
-    chart.get_tk_widget().grid(row=2, column=3, columnspan=5, rowspan=4)
+    chart.get_tk_widget().grid(row=2, column=3, columnspan=5, rowspan=10)
 
     # Perturbaciones
     etiquetaPert = tkinter.Label(
@@ -186,7 +204,7 @@ def printVentana():
 
     # u(k)
     etiquetaU = tkinter.Label(
-        ventana, text="u(k)", font="Helvetica 10").grid(row=3, column=9, columnspan=2)
+        ventana, text="u(k)", font="Helvetica 15").grid(row=3, column=9, columnspan=2)
     etiquetaEscalon = tkinter.Label(
         ventana, text="Esc", font="Helvetica 15").grid(row=4, column=9)
     cajaTextoEscalon = tkinter.Entry(
