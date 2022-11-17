@@ -318,14 +318,14 @@ def submitFunction(sim: simulador):
 
     #Get data of type of entry 
 
-    sim.listcoefa = [a1, a2, a3, a4]
-    sim.hasDeclaredCoefA = True
+    # sim.listcoefa = [a1, a2, a3, a4]
+    # sim.hasDeclaredCoefA = True
 
-    sim.listcoefb = [b0, b1, b2, b3]
-    sim.hasDeclaredCoefB = True
+    # sim.listcoefb = [b0, b1, b2, b3]
+    # sim.hasDeclaredCoefB = True
 
-    sim.coefd = d
-    sim.hasDeclaredCoefD = True
+    # sim.coefd = d
+    # sim.hasDeclaredCoefD = True
     pass
 
 
