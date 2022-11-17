@@ -361,6 +361,7 @@ def resetFunction():
 
 # Variables/Funciones llevadas a cabo por la interfaz graficas
 
+globalSim = simulador()
 
 def main():
     global start
@@ -375,7 +376,7 @@ def main():
 
     # Se lee un archivo con los atributos de la clase; ya declarados y se vuelve a declarar la clase con estos atributos
 
-    sim = simulador()
+    globalSim = simulador()
 
     # Primer entrada:
     print("Bienvenido al simulador: ¿Que quieres hacer?\n")
@@ -389,26 +390,26 @@ def main():
         if choice == '1':
             print("Declara tus coeficientes (a1, a2, ...) con el siguiente formato:")
             stringACoef = input("Ejemplo: -0.3 -0.2 0.1 etc.\n")
-            sim.listcoefa = [float(x) for x in stringACoef.split(" ")]
-            sim.hasDeclaredCoefA = True
+            globalSim.listcoefa = [float(x) for x in stringACoef.split(" ")]
+            globalSim.hasDeclaredCoefA = True
 
         elif choice == '2':
             print("Declara tus coeficientes (b0, b1, ...) con el siguiente formato:")
             stringBCoef = input("Ejemplo: 1 0 1 etc.\n")
-            sim.listcoefb = [float(x) for x in stringBCoef.split(" ")]
-            sim.hasDeclaredCoefB = True
+            globalSim.listcoefb = [float(x) for x in stringBCoef.split(" ")]
+            globalSim.hasDeclaredCoefB = True
 
         elif choice == '3':
             print("Declara un delay entero (d):")
             stringDCoef = input("Ejemplo: 2\n")
-            sim.coefd = int(stringDCoef)
-            sim.hasDeclaredCoefD = True
+            globalSim.coefd = int(stringDCoef)
+            globalSim.hasDeclaredCoefD = True
 
         elif choice == '4':
             print("Declara una perturbacion constante (pert):")
             stringDCoefPert = input("Ejemplo: 2 \n")
-            sim.coefPert = int(stringDCoefPert)
-            sim.hasDeclaredPert = True
+            globalSim.coefPert = int(stringDCoefPert)
+            globalSim.hasDeclaredPert = True
 
         elif choice == '5':
 
@@ -416,27 +417,27 @@ def main():
             choiceInp = printMenuEntrada()
             if choiceInp == '2':  # En caso de que el tipo de entrada sea escalon definido
                 inputSize = input("Cual es el tamaño del escalon deseado?:")
-                sim.stepAmplitude = float(inputSize)
-            sim.inpType = int(choiceInp)
-            sim.hasDeclaredEntry = True
+                globalSim.stepAmplitude = float(inputSize)
+            globalSim.inpType = int(choiceInp)
+            globalSim.hasDeclaredEntry = True
 
         elif choice == '6':
-            sim.printEquation()
+            globalSim.printEquation()
 
         elif choice == '7':
-            sim.calculateMaxInpDelay()
-            sim.calculateMaxOutDelay()
+            globalSim.calculateMaxInpDelay()
+            globalSim.calculateMaxOutDelay()
             print("Input memory:")
-            print(sim.inputMemory)
+            print(globalSim.inputMemory)
             print("Output memory:")
-            print(sim.outputMemory)
+            print(globalSim.outputMemory)
             start = True
             while (start):
 
-                result = float(sim.returnStepResult())
+                result = float(globalSim.returnStepResult())
                 print(result)
                 plotOutput.append(result)
-                plotInput.append(sim.inputMemory[0])
+                plotInput.append(globalSim.inputMemory[0])
                 plotTime = range(len(plotOutput))
                 arrPlotOutput = np.array(plotOutput)
                 arrPlotInput = np.array(plotInput)
@@ -510,7 +511,7 @@ cajaTextoEntradasD = tkinter.Entry(
     ventana, font="Helvetica 15").grid(row=9, column=1)
 
 botonSubmit = tkinter.Button(ventana, text="Submit",
-                             width=35, height=2, command=submitFunction(sim)).grid(row=10, column=0, columnspan=2)
+                             width=35, height=2, command=submitFunction(globalSim)).grid(row=10, column=0, columnspan=2)
 botonStart = tkinter.Button(ventana, text="Start",
                             width=35, height=2, command=startFunction).grid(row=10, column=0, columnspan=2)
 botonReset = tkinter.Button(ventana, text="Reset",
@@ -553,4 +554,6 @@ etiquetaEscalon = tkinter.Label(
     ventana, text="Esc", font="Helvetica 15").grid(row=4, column=9)
 cajaTextoEscalon = tkinter.Entry(
     ventana, font="Helvetica 15").grid(row=4, column=10)
+
+
 main()
