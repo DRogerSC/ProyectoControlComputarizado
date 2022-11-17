@@ -16,6 +16,7 @@ import time
 import tkinter
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import math
 
 ventana = tkinter.Tk()
 ventana.geometry("1200x700")
@@ -42,6 +43,12 @@ class simulador:
     hasInitializedInput = False
     hasInitializedOutput = False
     canSimulate = False
+    #First Order Model
+    gainK = 0
+    Tau = 0
+    thetaPrime = 0
+    T = 0
+
 
     inputMemory = []  # a
     outputMemory = []  # b
@@ -155,12 +162,21 @@ class simulador:
     def updatesIfCanSimulate(self): #Updates and informs if everything necessary to simulate is ready
         self.canSimulate = self.hasDeclaredCoefD & self.hasDeclaredCoefA & self.hasDeclaredCoefB & self.hasDeclaredEntry & self.hasDeclaredPert & self.hasInitializedOutput & self.hasInitializedInput
 
+    def firstOrderModelValues(self): #Calculates a's and b's values for the first order model
+        d = math.trunc(self.thetaPrime / self.T)
+        theta = self.thetaPrime - (d * self.T)
+        m = 1- (theta / self.T)
+        a1 = math.e ** ((-1 * self.T) / self.Tau)
+        b1 = self.gainK * (1 - math.e ** ((-1 * m * self.T) / self.Tau))
+        b2 = self.gainK * (math.e ** ((-1 * m * self.T) / self.Tau) - math.e ** ((-1 * self.T) / self.Tau))
+        self.listcoefa = [a1]
+        self.listcoefb = [b1, b2]
+        
 
 def graph():
     house_prices = np.random.normal(200000, 25000, 5000)
     plt.hist(house_prices, 50)
     plt.show()
-
 
 def printVentana():
     # Para mandar parametros con boton:
@@ -377,8 +393,7 @@ def main():
     while (choice != 9):
 
         if choice == '0':   #Declarar modelo de primer orden
-            printVentana()                                                                                                                            
-        
+            printVentana()                                                                                                                   
 
 
         if choice == '1':
