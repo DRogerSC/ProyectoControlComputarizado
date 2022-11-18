@@ -298,6 +298,16 @@ def submitFirstOrd(sim: simulador):
     sim.inpType = 2
     sim.hasDeclaredEntry = True
 
+    sim.coefd = 1
+    sim.hasDeclaredCoefD = True
+
+    #Initializes global simulator object's inputMemory
+    sim.calculateMaxInpDelay()
+
+    #Initializes global simulator object's outputMemory
+    sim.calculateMaxOutDelay()
+
+
     return
 
 
@@ -327,7 +337,7 @@ def updatePert(sim: simulador):
     sim.coefPert = pert
     pass
 
-def updateStep(sim: simulador):
+def updateStepSize(sim: simulador):
     stepMagnitude = parseStringToSim(cajaTextoEscalon.get())
     sim.stepAmplitude = stepMagnitude
     pass
@@ -348,7 +358,7 @@ def updateControllerParams(control: simulador):
     control.hasDeclaredCoefA = True
     control.listcoefb = [b0, b1, b2]
     control.hasDeclaredCoefB = True
-    control.coefd = 0
+    control.coefd = 1
     control.hasDeclaredCoefD = True
     control.coefPert = 0
     control.hasDeclaredPert = True
@@ -357,10 +367,11 @@ def updateControllerParams(control: simulador):
 
     control.calculateMaxInpDelay()
     control.calculateMaxOutDelay()
+    print(control.listcoefb)
     pass
 
-def updateRef(var):
-    var = parseStringToSim(cajaTextoRef.get())
+def updateRef():
+    ref = parseStringToSim(cajaTextoRef.get())
     return 
 
 def updateMode():
@@ -390,6 +401,8 @@ def updateDecl():
         cajaTextoEntradasB2.config(state="disabled")
         cajaTextoEntradasB3.config(state="disabled")
         cajaTextoEntradasD.config(state="disabled")
+        botonSubmit.config(state="disabled")
+        botonSubmitFO.config(state="normal")
         cajaTextoEntradaK.config(state="normal")
         cajaTextoEntradaTau.config(state="normal")
         cajaTextoEntradaTetaPrima.config(state="normal")
@@ -405,6 +418,8 @@ def updateDecl():
         cajaTextoEntradasB2.config(state="normal")
         cajaTextoEntradasB3.config(state="normal")
         cajaTextoEntradasD.config(state="normal")
+        botonSubmit.config(state="normal")
+        botonSubmitFO.config(state="disable")
         cajaTextoEntradaK.config(state="disabled")
         cajaTextoEntradaTau.config(state="disabled")
         cajaTextoEntradaTetaPrima.config(state="disabled")
@@ -439,6 +454,7 @@ def main():
     global plotInput
     global plotTime
     global isControlled
+    global ref
 
     start = False
     isControlled = False
@@ -482,7 +498,7 @@ def main():
         while(start):
             ventana.update_idletasks()
             ventana.update()
-            referencia = lastResult
+            ref = lastResult
            
             ##Debugging lines
             ##globalSim.updatesIfCanSimulate()
@@ -493,17 +509,37 @@ def main():
                 ##El valor de entrada directamente correspondera al atributo 'stepAmplitude
                 
                 #Hace un step de la planta
-                result = float(globalSim.returnStepResult())
+
+                lastResult = float(globalSim.returnStepResult())
                 
                 #Actualiza la referencia en el valor planta
-                updateRef(referencia)
-                error = referencia - result
+                ref = parseStringToSim(cajaTextoRef.get())
+                # print("Referencia: " + str(ref))
+                # print("Last result: " + str(lastResult))
+                error = ref - lastResult
+                # print("Error: " + str(error))
                 controlador.stepAmplitude = error
+                
+                #Hace un step del controlador
+    
                 entradaPlanta = float(controlador.returnStepResult())
+                # print("Params Controlador:")
+                # print("coefa" + str(controlador.listcoefa))
+                # print("coefb" + str(controlador.listcoefb))
+                # print("coefd" + str(controlador.coefd))
+                # print("coefpert" + str(controlador.coefPert))
+                # print("inpMem" + str(controlador.inputMemory))
+                # print("outMem" + str(controlador.outputMemory))
+                # print("typeEntr" + str(controlador.inpType))
+                # print("sizeStep" + str(controlador.stepAmplitude))
+
+
+
+                # print("Entrada Controlador: " + str(entradaPlanta))
                 globalSim.stepAmplitude = entradaPlanta
 
-                print(result)
-                plotOutput.append(result)
+                print(lastResult)
+                plotOutput.append(lastResult)
                 plotInput.append(globalSim.inputMemory[0])
                 plotTime = range(len(plotOutput))
                 arrPlotOutput = np.array(plotOutput)
@@ -514,7 +550,7 @@ def main():
 
                 pass
             else:
-                updateStep(globalSim)
+                updateStepSize(globalSim)
                 lastResult = float(globalSim.returnStepResult())
                 print(lastResult)
                 plotOutput.append(lastResult)
@@ -716,7 +752,7 @@ etiquetaTd = tkinter.Label(ventana, text="Td", font="Helvetica 15")
 etiquetaTd.grid(row=9, column=9)
 cajaTextoTd = tkinter.Entry(ventana, font="Helvetica 15")
 cajaTextoTd.grid(row=9, column=10)
-#
+#BotonControl
 botonSubmitCont = tkinter.Button(ventana, text="Submit Ctrl Params",
                              width=35, height=2, command=lambda:updateControllerParams(controlador))
 botonSubmitCont.grid(row=10, column=9, columnspan=2)
@@ -727,14 +763,19 @@ etiquetaRef = tkinter.Label(ventana, text="ReF", font="Helvetica 15")
 etiquetaRef.grid(row=12, column=9)
 cajaTextoRef = tkinter.Entry(ventana, font="Helvetica 15")
 cajaTextoRef.grid(row=12, column=10)
+#BotonReferencia
+botonSubmitCont = tkinter.Button(ventana, text="Submit Ref",
+                             width=35, height=2, command=lambda:updateRef())
+botonSubmitCont.grid(row=13, column=9, columnspan=2)
+
 
 #Modo
-etiquetaManOAuto = tkinter.Label(ventana, text="Manual o Auto", font="Helvetica 15").grid(row=13, column=9, columnspan=2)
+etiquetaManOAuto = tkinter.Label(ventana, text="Manual o Auto", font="Helvetica 15").grid(row=14, column=9, columnspan=2)
 choiceMode = tkinter.IntVar()
 cajaOpcionManual = tkinter.Radiobutton(ventana, text="Manual", variable=choiceMode, value = 0)
-cajaOpcionManual.grid(row=14, column=9)
+cajaOpcionManual.grid(row=15, column=9)
 cajaOpcionAuto = tkinter.Radiobutton(ventana, text="Auto", variable=choiceMode, value = 1)
-cajaOpcionAuto.grid(row=14, column=10)
+cajaOpcionAuto.grid(row=15, column=10)
 
 
 
