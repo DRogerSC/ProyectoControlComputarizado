@@ -201,6 +201,184 @@ class simulador:
         b2 = self.gainK * (math.e ** ((-1 * m * self.T) / self.Tau) - math.e ** ((-1 * self.T) / self.Tau))
         self.listcoefa = [a1]
         self.listcoefb = [b1, b2]
+
+class simuladorDos:
+
+    listcoefa = [1]
+    listcoefb = [0, 1]
+    result = []
+    coefd = 0
+    coefPert = 0
+    UnitLadderNo = 0
+    maxSteps = 1000
+    stepAmplitude = 0
+    maxOutDelay = 0
+    maxInpDelay = 0
+    inpType = 0
+    hasDeclaredCoefA = False
+    hasDeclaredCoefB = False
+    hasDeclaredPert = False
+    hasDeclaredCoefD = False
+    hasDeclaredEntry = False
+    hasInitializedInput = False
+    hasInitializedOutput = False
+    canSimulate = False
+    #First Order Model
+    gainK = 0
+    Tau = 0
+    thetaPrime = 0
+    T = 0
+
+
+    inputMemory = []  # a
+    outputMemory = []  # b
+    # perturbation
+
+    def printEquation(self):
+        print("Ecuacion de diferencias:")
+        strEquation = 'c(k) = '
+        for x in range(len(self.listcoefa)):
+            strEquation += str(self.listcoefa[x])+'c(k - '+str((x+1))+') + '
+        strEquation += str(str(self.listcoefb[0]) +
+                           'm(k - ' + str(self.coefd) + ') + ')
+        for x in range(1, len(self.listcoefb), 1):
+            strEquation += str(str(self.listcoefb[x]) +
+                               'm(k - '+str((x+1))+' - ' + str(self.coefd) + ') + ')
+        strEquation += str(self.coefPert)
+        print(strEquation)
+
+    # Funcion que a partir de la lista de coeficientes a, calcula el valor maximo que se tiene que guardar del input para calcular el siguiente valor
+
+    def calculateMaxOutDelay(self):
+        '''
+        @name: calculateMaxOutDelay
+        @brief: This script takes the length of the a coefficient list and uses it to calculate a maximum
+        @param: 
+        @return: --
+        '''
+        self.outputMemory.clear()
+
+        self.maxOutDelay = len(self.listcoefa)
+       
+        if self.maxOutDelay == 0:
+            print("Error:Calculated 0 Inp delay using:")
+            print("List:" + str(self.listcoefa))
+
+        for i in range(self.maxOutDelay):
+            self.outputMemory.append(0)
+        self.hasInitializedOutput = True
+
+        print("Initialized Output memory to: ")
+        print(self.outputMemory)
+
+     # Funcion que a partir de la lista de coeficientes a, calcula el valor maximo que se tiene que guardar del input para calcular el siguiente valor
+
+    def calculateMaxInpDelay(self):
+        '''
+        @name: calculateMaxInpDelay
+        @brief: 
+        @param: 
+        @return: --
+        '''
+        self.inputMemory.clear()
+
+        self.maxInpDelay = len(self.listcoefb) + self.coefd
+        print("MaxInpDelay:")
+        print(self.maxInpDelay)
+        if self.maxInpDelay == 0:
+            print("Error:Calculated 0 Inp delay using:")
+            print("List:" + str(self.listcoefb))
+            print("Coefd:" + str(self.coefd))
+
+        # Ingresa a la memoria las primeras unidades necesarias para la entrada
+        for i in range(int(self.maxInpDelay)):
+            if self.inpType == 1:  # Escalon unitario
+                if(i < self.coefd):
+                    self.inputMemory.append(1)
+                else:
+                    self.inputMemory.append(0)
+            elif self.inpType == 2:  # Escalon definido
+                if(i < self.coefd):
+                    self.inputMemory.append(self.stepAmplitude)
+                else:
+                    self.inputMemory.append(0)
+            elif self.inpType == 3:  # Rampa
+                if(i < self.coefd):
+                    self.stepAmplitude = 1
+                    self.inputMemory.append(1)
+                else:
+                    self.inputMemory.append(0)
+            elif self.inpType == 4:  # Lectura de archivo
+                pass  # Pendiente: Primera lectura de entrada
+            else:
+                print("Error: EntryType not specified")
+        self.hasInitializedInput = True
+
+        print("Initialized input memory to: ")
+        print(self.inputMemory)
+        return
+
+
+  
+    def returnStepResult(self):
+        '''
+        @name: returnStepResult
+        @brief: Calcula la salida en el siguiente step
+        @param:
+        @return: --
+        '''
+        self.updatesIfCanSimulate()
+        if (self.canSimulate):
+            accum = 0
+            for i in range(len(self.outputMemory)):
+                accum += self.outputMemory[i]*self.listcoefa[i]
+
+            for i in range(len(self.inputMemory)-int(self.coefd)):
+                accum += self.inputMemory[i +
+                                          int(self.coefd)] * self.listcoefb[i]
+
+            self.outputMemory.pop()
+            self.outputMemory.insert(0, accum)
+
+            if self.inpType == 1:  # UNITARIO
+                self.inputMemory.pop()
+                self.inputMemory.insert(0, 1)
+            elif self.inpType == 2:  # DEFINIDO
+                self.inputMemory.pop()
+                self.inputMemory.insert(0, self.stepAmplitude)
+            elif self.inpType == 3:  # RAMPA
+                self.inputMemory.pop()
+                self.inputMemory.insert(0, self.returnNextRamp())
+                pass
+            elif self.inpType == 4:  # ARCHIVA
+                pass
+            else:
+                pass
+
+            accum += self.coefPert
+
+            return accum
+        else:
+            print("Cannot simulate! Parameters are missing")
+            return 0
+
+    def returnNextRamp(self):
+        self.stepAmplitude += 1
+        return self.stepAmplitude
+
+    # Updates and informs if everything necessary to simulate is ready
+    def updatesIfCanSimulate(self):
+        self.canSimulate = self.hasDeclaredCoefD & self.hasDeclaredCoefA & self.hasDeclaredCoefB & self.hasDeclaredEntry & self.hasDeclaredPert & self.hasInitializedOutput & self.hasInitializedInput
+
+    def firstOrderModelValues(self): #Calculates a's and b's values for the first order model
+        d = math.trunc(self.thetaPrime / self.T)
+        theta = self.thetaPrime - (d * self.T)
+        m = 1- (theta / self.T)
+        a1 = math.e ** ((-1 * self.T) / self.Tau)
+        b1 = self.gainK * (1 - math.e ** ((-1 * m * self.T) / self.Tau))
+        b2 = self.gainK * (math.e ** ((-1 * m * self.T) / self.Tau) - math.e ** ((-1 * self.T) / self.Tau))
+        self.listcoefa = [a1]
+        self.listcoefb = [b1, b2]
     
 
 
@@ -344,7 +522,7 @@ def updateStepSize(sim: simulador):
 
 
 
-def updateControllerParams(control: simulador):
+def updateControllerParams(control: simuladorDos):
     Kc = parseStringToSim(cajaTextoKc.get()) 
     Ti = parseStringToSim(cajaTextoTi.get())
     Td = parseStringToSim(cajaTextoTd.get())
@@ -358,7 +536,7 @@ def updateControllerParams(control: simulador):
     control.hasDeclaredCoefA = True
     control.listcoefb = [b0, b1, b2]
     control.hasDeclaredCoefB = True
-    control.coefd = 1
+    control.coefd = 0
     control.hasDeclaredCoefD = True
     control.coefPert = 0
     control.hasDeclaredPert = True
@@ -443,7 +621,7 @@ def updateDecl():
 # Variables/Funciones llevadas a cabo por la interfaz graficas
 
 globalSim = simulador()
-controlador = simulador()
+controlador = simuladorDos()
 
 
 def main():
@@ -471,6 +649,7 @@ def main():
     plt.close(1)
     lastResult = 0
     plt.show(block=False)
+    iteracion = 0
 
     ##Funcion necesaria para que la ventana grafica no agarre focus al inicializarse
     def mypause(interval):
@@ -486,6 +665,7 @@ def main():
 
     # Primer entrada:
     while (showInterface):
+        
         ventana.update_idletasks()
         ventana.update()
         updateMode()
@@ -510,33 +690,36 @@ def main():
                 
                 #Hace un step de la planta
 
-                lastResult = float(globalSim.returnStepResult())
+             
                 
                 #Actualiza la referencia en el valor planta
                 ref = parseStringToSim(cajaTextoRef.get())
                 # print("Referencia: " + str(ref))
                 # print("Last result: " + str(lastResult))
                 error = ref - lastResult
-                # print("Error: " + str(error))
+                print("Error: " + str(error))
                 controlador.stepAmplitude = error
                 
                 #Hace un step del controlador
     
                 entradaPlanta = float(controlador.returnStepResult())
-                # print("Params Controlador:")
-                # print("coefa" + str(controlador.listcoefa))
-                # print("coefb" + str(controlador.listcoefb))
-                # print("coefd" + str(controlador.coefd))
-                # print("coefpert" + str(controlador.coefPert))
-                # print("inpMem" + str(controlador.inputMemory))
-                # print("outMem" + str(controlador.outputMemory))
-                # print("typeEntr" + str(controlador.inpType))
-                # print("sizeStep" + str(controlador.stepAmplitude))
+                iteracion+= 1
+                print("Params Controlador\t iteracion:" + str(iteracion))
+                print("inpMem:\t" + str(controlador.inputMemory))
+                print("outMem:\t" + str(controlador.outputMemory))
+                print("sizeStep(Entrada):\t" + str(controlador.stepAmplitude))
+                print("Entrada Controlador: " + str(entradaPlanta))
+            
+                print("Params globalSim\t iteracion:" + str(iteracion))
+                print("inpMem:\t" + str(globalSim.inputMemory))
+                print("outMem:\t" + str(globalSim.outputMemory))
+                print("sizeStep(Entrada):\t" + str(globalSim.stepAmplitude))
 
 
 
-                # print("Entrada Controlador: " + str(entradaPlanta))
+               
                 globalSim.stepAmplitude = entradaPlanta
+                lastResult = float(globalSim.returnStepResult())
 
                 print(lastResult)
                 plotOutput.append(lastResult)
