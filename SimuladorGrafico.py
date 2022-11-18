@@ -22,7 +22,6 @@ import math
 ventana = tkinter.Tk()
 ventana.geometry("1200x700")
 
-matplotlib.use("Qt5agg")
 
 
 class simulador:
@@ -272,6 +271,35 @@ def submitFunction(sim: simulador):
     sim.inpType = 2
     sim.hasDeclaredEntry = True
     return
+
+def submitFirstOrd(sim: simulador):
+    print("Presses SubmitFO")
+    #Get data for K value
+    sim.gainK = parseStringToSim(cajaTextoEntradaK.get())
+    #Get data for Tau value
+    sim.Tau = parseStringToSim(cajaTextoEntradaTau.get())
+    #Get data for ThetaPrime value
+    sim.thetaPrime = parseStringToSim(cajaTextoEntradaTetaPrima.get())
+    #Get data for the Interval value
+    sim.T = parseStringToSim(cajaTextoIntervalo.get())
+
+    #Calculate values for a's and b's
+    sim.firstOrderModelValues()
+
+    #Update control variables
+    sim.hasDeclaredCoefA = True
+    sim.hasDeclaredCoefB = True
+
+    ##TEMP PERT DECLARATION
+    sim.coefPert = 0
+    sim.hasDeclaredPert = True
+
+    ##TEMP ENTRY TYPE DECLARATION
+    sim.inpType = 2
+    sim.hasDeclaredEntry = True
+
+    return
+
 
 
 def pauseFunction():
@@ -622,6 +650,10 @@ cajaTextoEntradaTetaPrima = tkinter.Entry(
     ventana, font="Helvetica 15")
 cajaTextoEntradaTetaPrima.grid(row=4, column=3)
 
+#Botones Ec. Prim. Ord.
+botonSubmitFO = tkinter.Button(ventana, text="Submit First Order Params",
+                             width=35, height=2, command=lambda:submitFirstOrd(globalSim))
+botonSubmitFO.grid(row=5, column=3, columnspan=2)
 
 # Plots grids columns 2 a 7
 # etiquetaYK = tkinter.Label(ventana, text="y(k)", font="Helvetica 15").grid(
