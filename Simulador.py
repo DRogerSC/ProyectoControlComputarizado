@@ -450,6 +450,9 @@ def main():
             print(globalSim.outputMemory)
             start = True
             while (start):
+                
+                ventana.update_idletasks()
+                ventana.update()
 
                 result = float(globalSim.returnStepResult())
                 print(result)
